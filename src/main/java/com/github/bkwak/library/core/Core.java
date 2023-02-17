@@ -1,0 +1,97 @@
+package com.github.bkwak.library.core;
+
+import com.github.bkwak.library.database.BookDAO;
+import com.github.bkwak.library.database.UserDAO;
+import com.github.bkwak.library.gui.GUI;
+import com.github.bkwak.library.model.User;
+
+public class Core {
+    final BookDAO bookDB = BookDAO.getInstance();
+    final UserDAO userDB = UserDAO.getInstance();
+    final Authenticator authenticator = Authenticator.getInstance();
+    final GUI gui = GUI.getInstance();
+    private static final Core instance = new Core();
+
+    private Core() {
+    }
+
+    public void start() {
+        boolean isRunning = false;
+        while (!isRunning) {
+            switch (gui.showStartMenu()) {
+                case "1":
+                    isRunning = signIn(isRunning);
+                    break;
+//                case "2":
+//                    gui.showSignUpResult(signUp());
+//                    break;
+                case "2":
+                    System.exit(0);
+                    break;
+            }
+        }
+        menu();
+    }
+
+    public void menu() {
+        while (true) {
+            switch (gui.showMenu()) {
+                case "1":
+                    gui.listBooks();
+                    break;
+                case "2":
+                    gui.listRentedBooks();
+                    break;
+                case "3":
+                    gui.listOverdueBooks();
+                    break;
+                case "4":
+//                    gui.showOrderResult(gui.buy());
+                    break;
+                case "5":
+                    gui.searchBooks();
+                    start();
+                    break;
+                case "6":
+                    authenticator.setLoggedUser(null);
+                    start();
+                case "7":
+                    System.exit(0);
+
+                    break;
+                case "8":
+                    if(this.authenticator.getLoggedUser().getRole() == User.Role.ADMIN ) {
+                        this.bookDB.addBook(this.gui.readNewBookData());
+                        break;
+                    }
+                    break;
+                default:
+                    System.out.println("Wrong choice!!!");
+                    break;
+            }
+        }
+    }
+
+    public boolean signIn(boolean isRunning) {
+        int counter = 0;
+        while (!isRunning && counter < 3) {
+            this.authenticator.authenticate(this.gui.readLoginAndPassword());
+            isRunning = authenticator.getLoggedUser() != null;
+            if (!isRunning) {
+                System.out.println("Not authorized !!!");
+            }
+            counter++;
+        }
+        return isRunning;
+    }
+    public static Core getInstance() {
+        return instance;
+    }
+//    public boolean signUp() {
+//        User user = this.gui.setNewUser();
+//        if (this.userDB.addUser(user)) {
+//            user.setRole(User.Role.USER);
+//            return true;
+//        } else return false;
+//    }
+}
