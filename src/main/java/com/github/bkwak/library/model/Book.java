@@ -7,9 +7,9 @@ public class Book {
     private Category category;
     private boolean rent;
 
-    public Book(String author, String title, String isbn, Category category, boolean rent) {
-        this.author = author;
+    public Book(String title, String author, String isbn, Category category, boolean rent) {
         this.title = title;
+        this.author = author;
         this.isbn = isbn;
         this.category = category;
         this.rent = rent;
@@ -59,17 +59,17 @@ public class Book {
     public String toString() {
         return new StringBuilder()
                 .append("--------------------------------------")
-                .append("\n Tytul: ").append((this.getTitle()))
-                .append("\n Autor: ").append((this.getAuthor()))
-                .append("\n Kategoria: ").append(categoryName(this.getCategory()))
+                .append("\n Title: ").append((this.getTitle()))
+                .append("\n Author: ").append((this.getAuthor()))
+                .append("\n Category: ").append(categoryName(this.getCategory()))
                 .toString();
     }
 
     private String categoryName(Category category) {
         return switch (category) {
-            case BIOGRAPHY -> "Biografia";
-            case CRIME -> "Kryminal";
-            case FANTASY -> "Fantastyka";
+            case BIOGRAPHY -> "Biography";
+            case CRIME -> "Crime";
+            case FANTASY -> "Fantasy";
             case THRILLER -> "Thriller";
             case SCIENCE_FICTION -> "Science Fiction";
         };

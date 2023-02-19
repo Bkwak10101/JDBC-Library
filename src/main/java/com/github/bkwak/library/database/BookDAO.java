@@ -3,8 +3,13 @@ package com.github.bkwak.library.database;
 import com.github.bkwak.library.model.Book;
 
 import java.sql.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BookDAO {
     private static final BookDAO instance = new BookDAO();
@@ -42,7 +47,6 @@ public class BookDAO {
                 Book.Category category = Book.Category.valueOf(rs.getString("category"));
                 boolean rent = rs.getBoolean("rent");
                 result.add(new Book(title, author, isbn, category, rent));
-
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -51,11 +55,15 @@ public class BookDAO {
         return result;
     }
 
-    public List<Book> getRentedBooks() {
-        ArrayList<Book> result = new ArrayList<>();
+    public Map<List<String>, Book>  getRentedBooks() {
+        Map<List<String>, Book> result = new HashMap<>();
 
         try {
-            String sql = "SELECT * FROM book WHERE rent = 1";
+            String sql =
+                    "SELECT b.title, b.author, b.isbn, b.category, b.rent, r.name, r.surname\n" +
+                    "FROM book AS b\n" +
+                    "JOIN reservation AS r ON b.book_id = r.book_id\n" +
+                    "WHERE b.rent = 1";
             PreparedStatement ps = this.connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -63,13 +71,66 @@ public class BookDAO {
                 String title = rs.getString("title");
                 String author = rs.getString("author");
                 String isbn = rs.getString("isbn");
-                Book.Category type = Book.Category.valueOf(rs.getString("category"));
+                Book.Category category = Book.Category.valueOf(rs.getString("category"));
+                boolean rent = rs.getBoolean("rent");
+                String name = rs.getString("name");
+                String surname = rs.getString("surname");
+
+                ArrayList<String> user = new ArrayList<>();
+                user.add(name);
+                user.add(surname);
+                user.add(title);
+                result.put(user, new Book(title, author, isbn, category, rent));
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException();
         }
         return result;
     }
+
+    public Map<List<String>, Book> getOverdueBooks() {
+        Map<List<String>, Book> result = new HashMap<>();
+
+        try {
+
+            String sql =
+                    "SELECT b.title, b.author, b.isbn, b.category, b.rent, r.name, r.surname, r.out_date, r.due_date\n" +
+                            "FROM book AS b\n" +
+                            "JOIN reservation AS r ON b.book_id = r.book_id\n" +
+                            "WHERE (r.due_date < ? AND b.rent = 1)";
+            PreparedStatement ps = this.connection.prepareStatement(sql);
+            ps.setString(1, getLocalTime());
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+
+                String title = rs.getString("title");
+                String author = rs.getString("author");
+                String isbn = rs.getString("isbn");
+                Book.Category category = Book.Category.valueOf(rs.getString("category"));
+                boolean rent = rs.getBoolean("rent");
+                String name = rs.getString("name");
+                String surname = rs.getString("surname");
+
+                ArrayList<String> user = new ArrayList<>();
+                user.add(name);
+                user.add(surname);
+                result.put(user, new Book(title, author, isbn, category, rent));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
+        return result;
+    }
+
+    private String getLocalTime() {
+        LocalDateTime dateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        return dateTime.format(formatter);
+    }
+
 
     public void addBook(Book book) {
         Book.Category category = switch (book.getCategory()) {
@@ -97,23 +158,39 @@ public class BookDAO {
         }
     }
 
-    public boolean rentBook(String plate) {
-        String sql = "SELECT * FROM book WHERE author = ?";
+    public boolean rentBook(List<String> info) {
+        String sql = "SELECT * FROM book WHERE title = ?";
         try {
             PreparedStatement ps = this.connection.prepareStatement(sql);
-            ps.setString(1, plate);
+            ps.setString(1, info.get(0));
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
                 boolean rent = rs.getBoolean("rent");
                 if (!rent) {
-                    String updateSql = "UPDATE tvehicle SET rent = ? WHERE id = ?";
-                    int vehicleId = rs.getInt("id");
+                    String updateSql = "UPDATE book SET rent = ? WHERE book_id = ?";
+                    int bookId = rs.getInt("book_id");
 
                     PreparedStatement updatePs = this.connection.prepareStatement(updateSql);
                     updatePs.setBoolean(1, true);
-                    updatePs.setInt(2, vehicleId);
+                    updatePs.setInt(2, bookId);
                     updatePs.executeUpdate();
+
+                    String updateSql2 = "INSERT INTO reservation " +
+                            "(book_id, title, name, surname, out_date, due_date) VALUES (?,?,?,?,?,?)";
+
+                    LocalDateTime dateTime = LocalDateTime.now();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//                    LocalDateTime dateTime = LocalDateTime.now();
+//                    System.out.println(dateTime);
+                    PreparedStatement updatePs2 = this.connection.prepareStatement(updateSql2);
+                    updatePs2.setInt(1, bookId);
+                    updatePs2.setString(2, info.get(0));
+                    updatePs2.setString(3, info.get(1));
+                    updatePs2.setString(4, info.get(2));
+                    updatePs2.setString(5, getLocalTime());
+                    updatePs2.setString(6, dateTime.plus(Duration.ofDays(14)).format(formatter));
+                    updatePs2.executeUpdate();
                     return true;
                 }
             }

@@ -6,6 +6,9 @@ import com.github.bkwak.library.database.UserDAO;
 import com.github.bkwak.library.model.Book;
 import com.github.bkwak.library.model.User;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class GUI {
@@ -81,15 +84,49 @@ public class GUI {
     }
 
     public void listRentedBooks(){
-        for (Book book : this.bookDB.getBooks()) {
+        Map<List<String>, Book> rentedBooks = this.bookDB.getRentedBooks();
+        rentedBooks.forEach((user, book) -> {
+            System.out.println("--------------------------------------");
+            System.out.println("User: " + user.get(0) + " " + user.get(1));
             System.out.println(book);
-        }
+        });
+
     }
+
     public void listOverdueBooks(){
-        for (Book book : this.bookDB.getBooks()) {
+        Map<List<String>, Book> overdueBooks = this.bookDB.getOverdueBooks();
+        overdueBooks.forEach((user, book) -> {
+            System.out.println("--------------------------------------");
+            System.out.println("User: " + user.get(0) + " " + user.get(1));
             System.out.println(book);
+        });
+    }
+
+    public List<String> readReservation() {
+        ArrayList<String> info = new ArrayList<>();
+        System.out.println("Title:");
+        String title = this.scanner.nextLine();
+        info.add(title);
+        for (Book book : this.bookDB.getBooks()) {
+            if(title.equals(book.getTitle())){
+                info.add(book.getIsbn());
+            }
+        }
+        System.out.println("Name: ");
+        info.add(this.scanner.nextLine());
+        System.out.println("Surname: ");
+        info.add(this.scanner.nextLine());
+        return info;
+    }
+
+    public void showRentResult(boolean result) {
+        if (result) {
+            System.out.println("Rent successfull");
+        } else {
+            System.out.println("Title does not exist or book is already rent");
         }
     }
+
     public Book readNewBookData() {
         System.out.println("1. Biography");
         System.out.println("2. Crime");

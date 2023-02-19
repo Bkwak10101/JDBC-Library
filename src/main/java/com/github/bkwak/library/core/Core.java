@@ -46,7 +46,7 @@ public class Core {
                     gui.listOverdueBooks();
                     break;
                 case "4":
-//                    gui.showOrderResult(gui.buy());
+                    gui.showRentResult((bookDB.rentBook(gui.readReservation())));
                     break;
                 case "5":
                     gui.searchBooks();
