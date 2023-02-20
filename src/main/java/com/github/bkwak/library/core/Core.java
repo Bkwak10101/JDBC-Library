@@ -6,13 +6,17 @@ import com.github.bkwak.library.gui.GUI;
 import com.github.bkwak.library.model.User;
 
 public class Core {
+    private static final Core instance = new Core();
     final BookDAO bookDB = BookDAO.getInstance();
     final UserDAO userDB = UserDAO.getInstance();
     final Authenticator authenticator = Authenticator.getInstance();
     final GUI gui = GUI.getInstance();
-    private static final Core instance = new Core();
 
     private Core() {
+    }
+
+    public static Core getInstance() {
+        return instance;
     }
 
     public void start() {
@@ -49,18 +53,16 @@ public class Core {
                     gui.showRentResult((bookDB.rentBook(gui.readReservation())));
                     break;
                 case "5":
-                    gui.searchBooks();
-                    start();
+                    gui.listSearchResult();
                     break;
                 case "6":
                     authenticator.setLoggedUser(null);
                     start();
                 case "7":
                     System.exit(0);
-
                     break;
                 case "8":
-                    if(this.authenticator.getLoggedUser().getRole() == User.Role.ADMIN ) {
+                    if (this.authenticator.getLoggedUser().getRole() == User.Role.ADMIN) {
                         this.bookDB.addBook(this.gui.readNewBookData());
                         break;
                     }
@@ -83,9 +85,6 @@ public class Core {
             counter++;
         }
         return isRunning;
-    }
-    public static Core getInstance() {
-        return instance;
     }
 //    public boolean signUp() {
 //        User user = this.gui.setNewUser();
