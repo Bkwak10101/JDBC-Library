@@ -154,6 +154,7 @@ public class BookDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 boolean rent = rs.getBoolean("rent");
+                System.out.println("Rent = " + rent);
                 if (!rent) {
                     String updateSql = "UPDATE book SET rent = ? WHERE book_id = ?";
                     int bookId = rs.getInt("book_id");
@@ -217,5 +218,4 @@ public class BookDAO {
         }
         return result;
     }
-
 }

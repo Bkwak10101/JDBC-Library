@@ -8,7 +8,7 @@ public class UserDAO {
     private static final UserDAO instance = new UserDAO();
     private final Connection connection;
 
-    private UserDAO() {
+    public UserDAO() {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");

@@ -4,14 +4,32 @@ import com.github.bkwak.library.model.Book;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import org.junit.jupiter.api.Assertions.*;
-
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BookDAOTest {
     private final BookDAO bookDB = BookDAO.getInstance();
+
+    @Test
+    @DisplayName("should rent a book successfully")
+    public void RentBook_bookIsNotRented() {
+        List<String> bookInfo = new ArrayList<>();
+        bookInfo.add("Mamba mentality: How I play");
+        bookInfo.add("Janusz");
+        bookInfo.add("Nowak");
+        assertTrue(bookDB.rentBook(bookInfo));
+    }
+
+    @Test
+    @DisplayName("should not rent a book which is rented already")
+    public void RentBook_bookIsRented() {
+        List<String> bookInfo = new ArrayList<>();
+        bookInfo.add("Mamba mentality: How I play");
+        bookInfo.add("Anna");
+        bookInfo.add("Nowak");
+        assertFalse(bookDB.rentBook(bookInfo));
+    }
 
     @Test
     @DisplayName("searchWith")
@@ -55,7 +73,6 @@ public class BookDAOTest {
             System.out.println("Reservation: " + reservation4);
             System.out.println("Book: " + book);
         }
-
         assertEquals(expected, result);
     }
 }
