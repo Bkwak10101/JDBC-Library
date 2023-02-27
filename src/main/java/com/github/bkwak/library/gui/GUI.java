@@ -6,11 +6,7 @@ import com.github.bkwak.library.database.UserDAO;
 import com.github.bkwak.library.model.Book;
 import com.github.bkwak.library.model.User;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class GUI {
     private static final GUI instance = new GUI();
@@ -36,7 +32,6 @@ public class GUI {
 
     public String showStartMenu() {
         System.out.println("1. Sign in");
-//        System.out.println("2. Sign up");
         System.out.println("2. Exit");
         return this.scanner.nextLine();
     }
@@ -69,26 +64,16 @@ public class GUI {
         System.out.println("Search books:");
         this.bookDB.search(this.scanner.nextLine()).forEach((reservation, book) -> {
             System.out.println(book);
-            System.out.println(" Status: ");
+            System.out.print(" Status: ");
             if (!book.isRent()) {
-                System.out.println(" Available");
+                System.out.println("Available");
             } else {
-                System.out.println(" Loaned by: " + reservation.get(0) + " " + reservation.get(1));
+                System.out.println("Loaned by: " + reservation.get(0) + " " + reservation.get(1));
                 System.out.println(" Book loan date: " + reservation.get(2));
                 System.out.println(" Return date: " + reservation.get(3));
             }
         });
     }
-
-
-//    public User setNewUser() {
-//        User reservation = new User();
-//        System.out.println("Login:");
-//        reservation.setLogin(this.scanner.nextLine());
-//        System.out.println("Password:");
-//        reservation.setPassword(DigestUtils.md5Hex(this.scanner.nextLine() + Authenticator.seed));
-//        return reservation;
-//    }
 
     public void listBooks() {
         this.bookDB.getBooks().forEach(System.out::println);
@@ -114,12 +99,10 @@ public class GUI {
     }
 
     public List<String> readReservation() {
+        ArrayList<String> info = new ArrayList<>();
         System.out.println("Title:");
         String title = this.scanner.nextLine();
-        List<String> info = this.bookDB.getBooks().stream()
-                .filter(book -> title.equals(book.getTitle()))
-                .map(Book::getIsbn)
-                .collect(Collectors.toCollection(ArrayList::new));
+        info.add(title);
         System.out.println("Name: ");
         info.add(this.scanner.nextLine());
         System.out.println("Surname: ");

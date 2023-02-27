@@ -46,22 +46,4 @@ public class UserDAO {
         }
         return null;
     }
-
-//    public boolean addUser(User newUser) {
-//        boolean result = false;
-//        try {
-//            String sql = "INSERT INTO user " +
-//                    "(login, password , role) VALUES (?,?,?);
-//            PreparedStatement ps = this.connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-//            ps.setString(1, newUser.getLogin());
-//            ps.setString(2, newUser.getPassword());
-//            ps.setString(3, newUser.toString());
-//
-//            ps.executeUpdate();
-//
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
-//        return result;
-//    }
 }

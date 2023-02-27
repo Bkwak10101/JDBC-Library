@@ -34,13 +34,11 @@ public class BookDAO {
 
     public List<Book> getBooks() {
         ArrayList<Book> result = new ArrayList<>();
-
         try {
             String sql = "SELECT * FROM book";
             PreparedStatement ps = this.connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-
                 String title = rs.getString("title");
                 String author = rs.getString("author");
                 String isbn = rs.getString("isbn");
@@ -57,7 +55,6 @@ public class BookDAO {
 
     public Map<List<String>, Book> getRentedBooks() {
         Map<List<String>, Book> result = new HashMap<>();
-
         try {
             String sql =
                     "SELECT b.title, b.author, b.isbn, b.category, b.rent, r.name, r.surname\n" +
@@ -67,7 +64,6 @@ public class BookDAO {
             PreparedStatement ps = this.connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-
                 String title = rs.getString("title");
                 String author = rs.getString("author");
                 String isbn = rs.getString("isbn");
@@ -75,7 +71,6 @@ public class BookDAO {
                 boolean rent = rs.getBoolean("rent");
                 String name = rs.getString("name");
                 String surname = rs.getString("surname");
-
                 ArrayList<String> reservation = new ArrayList<>();
                 reservation.add(name);
                 reservation.add(surname);
@@ -91,9 +86,7 @@ public class BookDAO {
 
     public Map<List<String>, Book> getOverdueBooks() {
         Map<List<String>, Book> result = new HashMap<>();
-
         try {
-
             String sql =
                     "SELECT b.title, b.author, b.isbn, b.category, b.rent, r.name, r.surname, r.out_date, r.due_date\n" +
                             "FROM book AS b\n" +
@@ -103,7 +96,6 @@ public class BookDAO {
             ps.setString(1, getLocalTime());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-
                 String title = rs.getString("title");
                 String author = rs.getString("author");
                 String isbn = rs.getString("isbn");
@@ -111,7 +103,6 @@ public class BookDAO {
                 boolean rent = rs.getBoolean("rent");
                 String name = rs.getString("name");
                 String surname = rs.getString("surname");
-
                 ArrayList<String> reservation = new ArrayList<>();
                 reservation.add(name);
                 reservation.add(surname);
@@ -128,10 +119,8 @@ public class BookDAO {
     private String getLocalTime() {
         LocalDateTime dateTime = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
         return dateTime.format(formatter);
     }
-
 
     public void addBook(Book book) {
         Book.Category category = switch (book.getCategory()) {
@@ -151,9 +140,7 @@ public class BookDAO {
             ps.setString(3, book.getIsbn());
             ps.setString(4, category.toString());
             ps.setBoolean(5, book.isRent());
-
             ps.executeUpdate();
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -165,21 +152,17 @@ public class BookDAO {
             PreparedStatement ps = this.connection.prepareStatement(sql);
             ps.setString(1, info.get(0));
             ResultSet rs = ps.executeQuery();
-
             if (rs.next()) {
                 boolean rent = rs.getBoolean("rent");
                 if (!rent) {
                     String updateSql = "UPDATE book SET rent = ? WHERE book_id = ?";
                     int bookId = rs.getInt("book_id");
-
                     PreparedStatement updatePs = this.connection.prepareStatement(updateSql);
                     updatePs.setBoolean(1, true);
                     updatePs.setInt(2, bookId);
                     updatePs.executeUpdate();
-
                     String updateSql2 = "INSERT INTO reservation " +
                             "(book_id, title, name, surname, out_date, due_date) VALUES (?,?,?,?,?,?)";
-
                     LocalDateTime dateTime = LocalDateTime.now();
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                     PreparedStatement updatePs2 = this.connection.prepareStatement(updateSql2);
@@ -193,7 +176,6 @@ public class BookDAO {
                     return true;
                 }
             }
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -205,15 +187,14 @@ public class BookDAO {
         try {
             String sql =
                     "SELECT b.title, b.author, b.isbn, b.category, b.rent, r.name, r.surname, r.out_date, r.due_date " +
-                    "FROM book b LEFT JOIN reservation r ON b.book_id = r.book_id " +
-                    "WHERE b.title LIKE ? OR b.author LIKE ? OR b.isbn LIKE ?";
+                            "FROM book b LEFT JOIN reservation r ON b.book_id = r.book_id " +
+                            "WHERE b.title LIKE ? OR b.author LIKE ? OR b.isbn LIKE ?";
             PreparedStatement ps = this.connection.prepareStatement(sql);
             ps.setString(1, "%" + input + "%");
             ps.setString(2, "%" + input + "%");
             ps.setString(3, "%" + input + "%");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-
                 String title = rs.getString("title");
                 String author = rs.getString("author");
                 String isbn = rs.getString("isbn");
@@ -223,21 +204,18 @@ public class BookDAO {
                 String surname = rs.getString("surname");
                 String out_date = rs.getString("out_date");
                 String due_date = rs.getString("due_date");
-
-
                 ArrayList<String> reservation = new ArrayList<>();
                 reservation.add(name);
                 reservation.add(surname);
                 reservation.add(out_date);
                 reservation.add(due_date);
+                reservation.add(title);
                 result.put(reservation, new Book(title, author, isbn, category, rent));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
             throw new RuntimeException();
         }
         return result;
-
     }
 
 }

@@ -1,14 +1,12 @@
 package com.github.bkwak.library.core;
 
 import com.github.bkwak.library.database.BookDAO;
-import com.github.bkwak.library.database.UserDAO;
 import com.github.bkwak.library.gui.GUI;
 import com.github.bkwak.library.model.User;
 
 public class Core {
     private static final Core instance = new Core();
     final BookDAO bookDB = BookDAO.getInstance();
-    final UserDAO userDB = UserDAO.getInstance();
     final Authenticator authenticator = Authenticator.getInstance();
     final GUI gui = GUI.getInstance();
 
@@ -26,9 +24,6 @@ public class Core {
                 case "1":
                     isRunning = signIn(isRunning);
                     break;
-//                case "2":
-//                    gui.showSignUpResult(signUp());
-//                    break;
                 case "2":
                     System.exit(0);
                     break;
@@ -86,11 +81,4 @@ public class Core {
         }
         return isRunning;
     }
-//    public boolean signUp() {
-//        User user = this.gui.setNewUser();
-//        if (this.userDB.addUser(user)) {
-//            user.setRole(User.Role.USER);
-//            return true;
-//        } else return false;
-//    }
 }
